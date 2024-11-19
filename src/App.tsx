@@ -6,11 +6,26 @@ import {
   Environment,
   OrbitControls,
 } from "@react-three/drei";
+import { HexColorPicker } from "react-colorful";
 
 function App() {
+  const [parts, setParts] = useState({
+    laces: "#ffd700",
+    mesh: "#808080",
+    caps: "#ff0000",
+    inner: "#ff0000",
+    sole: "#ff0000",
+    stripes: "#ffd700",
+    band: "#ff0000",
+    patch: "#ffd700",
+  });
+  const [current, setCurrent] = useState("mesh");
+
   return (
     <div className="w-full h-screen">
-      <h1 className="text-5xl font-bold mb-4">Conductor</h1>
+      <h1 className="absolute top-[20px] left-[30px] text-5xl font-bold mb-4">
+        Conductor
+      </h1>
       <Canvas shadows camera={{ position: [0, 0, 4], fov: 45 }}>
         <ambientLight intensity={0.7} />
         <spotLight
@@ -20,7 +35,7 @@ function App() {
           position={[10, 15, 10]}
           castShadow
         />
-        <Product />
+        <Product parts={parts} setCurrent={setCurrent} />
         <Environment preset="city" />
         <ContactShadows
           position={[0, -0.8, 0]}
@@ -36,11 +51,12 @@ function App() {
           enablePan={false}
         />
       </Canvas>
+      <ColorPicker parts={parts} setParts={setParts} current={current} />
     </div>
   );
 }
 
-function Product() {
+function Product({ parts, setCurrent }) {
   const ref = useRef();
   const { nodes, materials } = useGLTF("shoe.glb");
 
@@ -55,64 +71,85 @@ function Product() {
   });
 
   return (
-    <group ref={ref}>
+    <group
+      ref={ref}
+      onClick={(e) => {
+        e.stopPropagation();
+        setCurrent(e.object.material.name);
+      }}
+    >
       <mesh
         receiveShadow
         castShadow
         geometry={nodes.shoe.geometry}
         material={materials.laces}
-        material-color={"gold"}
+        material-color={parts.laces}
       />
       <mesh
         receiveShadow
         castShadow
         geometry={nodes.shoe_1.geometry}
         material={materials.mesh}
-        material-color={"gray"}
+        material-color={parts.mesh}
       />
       <mesh
         receiveShadow
         castShadow
         geometry={nodes.shoe_2.geometry}
         material={materials.caps}
-        material-color={"red"}
+        material-color={parts.caps}
       />
       <mesh
         receiveShadow
         castShadow
         geometry={nodes.shoe_3.geometry}
         material={materials.inner}
-        material-color={"red"}
+        material-color={parts.inner}
       />
       <mesh
         receiveShadow
         castShadow
         geometry={nodes.shoe_4.geometry}
         material={materials.sole}
-        material-color={"red"}
+        material-color={parts.sole}
       />
       <mesh
         receiveShadow
         castShadow
         geometry={nodes.shoe_5.geometry}
         material={materials.stripes}
-        material-color={"gold"}
+        material-color={parts.stripes}
       />
       <mesh
         receiveShadow
         castShadow
         geometry={nodes.shoe_6.geometry}
         material={materials.band}
-        material-color={"red"}
+        material-color={parts.band}
       />
       <mesh
         receiveShadow
         castShadow
         geometry={nodes.shoe_7.geometry}
         material={materials.patch}
-        material-color={"gold"}
+        material-color={parts.patch}
       />
     </group>
+  );
+}
+
+function ColorPicker({ parts, setParts, current }) {
+  return (
+    <div className="absolute top-[50px] right-[50px]">
+      <HexColorPicker
+        className="!w-[150px] !h-[150px]"
+        color={parts[current]}
+        onChange={(color) => {
+          setParts({ ...parts, [current]: color });
+        }}
+      />
+      <h2 className="text-4xl">{current}</h2>
+    </div>
   );
 }
 
